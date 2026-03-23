@@ -1,0 +1,437 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Plan multi-stop trips in Sri Lanka with AI-optimized routes and budget-friendly recommendations in LKR." />
+  <title>Tripify</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Custom cursor -->
+  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+  <!-- Page load curtain -->
+  <div class="page-curtain" id="pageCurtain"></div>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero" id="home">
+    <div class="hero-bg" style="background-image:url('hero-bg.jpg')"></div>
+    <div class="hero-overlay"></div>
+
+    <!-- Mountain Land grid frame lines -->
+    <div class="grid-frame">
+      <div class="gf-v left"></div>
+      <div class="gf-v right"></div>
+      <div class="gf-h top"></div>
+      <div class="gf-h bottom"></div>
+    </div>
+
+    <!-- Sparkle decorations 
+    <span class="sparkle sp1">✦</span>
+    <span class="sparkle sp2">✦</span>
+    <span class="sparkle sp3">✦</span>
+    <span class="sparkle sp4">✦</span> 
+    -->
+
+    <!-- NAVBAR: center-logo, links on sides -->
+    <nav class="navbar nav-anim">
+      <ul class="nav-links nav-left">
+        <li class="nl-anim nl-1"><a href="#team-section" class="nav-link">About</a></li>
+        <li class="nl-anim nl-2"><a href="#about" class="nav-link">Why Us</a></li>
+      </ul>
+      <div class="nav-logo logo-anim">
+        <svg class="logo-mountain" viewBox="0 0 60 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M30 6 L54 44 H6 Z" stroke="white" stroke-width="1.5" fill="none"/>
+          <path d="M17 34 L30 16 L43 34" stroke="white" stroke-width="1" fill="none" opacity="0.55"/>
+          <circle cx="30" cy="47" r="1.2" fill="white" opacity="0.6"/>
+        </svg>
+        <span class="logo-brand">Tripify</span>
+        <span class="logo-sub">SRI LANKA</span>
+      </div>
+      <ul class="nav-links nav-right">
+        <li class="nl-anim nl-3"><a href="#planner" class="nav-link nav-cta">Plan Now</a></li>
+      </ul>
+      <button class="nav-hamburger" id="navHamburger" aria-label="Menu" aria-expanded="false">
+        <span class="ham-line"></span>
+        <span class="ham-line"></span>
+        <span class="ham-line"></span>
+      </button>
+    </nav>
+
+    <!-- Mobile slide-down drawer -->
+    <div class="mobile-drawer" id="mobileDrawer" aria-hidden="true">
+      <div class="mobile-drawer-inner">
+        <a href="#gallery" class="mob-link" data-close> Discover Places</a>
+        <a href="#planner" class="mob-link" data-close> Plan My Trip</a>
+        <a href="#about"   class="mob-link" data-close>Why Tripify</a>
+        <a href="#results" class="mob-link" data-close>My Route</a>
+        <a href="#planner" class="mob-cta" data-close>Plan Now </a>
+      </div>
+    </div>
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- HERO CONTENT (centered, Mountain Land style) -->
+    <div class="hero-content">
+      <div class="hero-center">
+        <h1 class="hero-title title-anim">Explore Sri Lanka's<br/><em>Unseen Wonders</em></h1>
+        <p class="hero-sub sub-anim">Plan multi-stop journeys through Sri Lanka's most breathtaking landscapes, AI-optimized routes, traffic-aware timings, and LKR budget planning.</p>
+        <div class="hero-btns">
+          <a href="#gallery" class="btn-discover btn-discover-anim">Discover  <span class="discover-arrow">→</span></a>
+          <a href="#planner" class="btn-plan-hero">Plan a Trip <span class="discover-arrow">→</span></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- DESTINATION CARDS STRIP (bottom of hero) -->
+    <div class="hero-dests">
+      <div class="dest-card">
+        <div class="dc-region">CENTRAL PROVINCE</div>
+        <div class="dc-name">Sigiriya Rock</div>
+        <div class="dc-rule"></div>
+        <div class="dc-price">From Rs. 4,500</div>
+      </div>
+      <div class="dest-card">
+        <div class="dc-region">UVA PROVINCE</div>
+        <div class="dc-name">Ella Valley</div>
+        <div class="dc-rule"></div>
+        <div class="dc-price">Free Â· All Trails</div>
+      </div>
+      <div class="dest-card">
+        <div class="dc-region">SOUTHERN COAST</div>
+        <div class="dc-name">Galle Fort</div>
+        <div class="dc-rule"></div>
+        <div class="dc-price">Free Entry</div>
+      </div>
+      <div class="dest-card">
+        <div class="dc-region">SOUTHERN SAFARI</div>
+        <div class="dc-name">Yala National Park</div>
+        <div class="dc-rule"></div>
+        <div class="dc-price">From Rs. 4,500</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TOP PLACES GALLERY ===== -->
+  <section class="gallery-section reveal-up" id="gallery"><br><br>
+    <div class="gallery-header reveal-up">
+      <div class="gallery-eyebrow">Unmissable Destinations</div>
+      <h2 class="gallery-title">Top Places in <em>Sri Lanka</em></h2>
+      <p class="gallery-sub">Discover the island's most breathtaking spots â€” from ancient rock fortresses to pristine beaches</p>
+    </div>
+<div class="gallery-scene">
+      <button class="gallery-btn prev" id="galleryPrev" aria-label="Previous">←</button>
+      <div class="gallery-track" id="galleryTrack"></div>
+      <button class="gallery-btn next" id="galleryNext" aria-label="Next">→</button>
+    </div>
+    <div class="gallery-dots" id="galleryDots"></div><br><br>
+  </section>
+
+  <!-- ===== PLANNER SECTION ===== -->
+  <section class="planner-section" id="planner">
+    <div class="planner-grid">
+
+      <!-- Left: Sri Lanka map outline + intro text -->
+      <div class="planner-left reveal-left">
+        <div class="sl-map">
+          <svg viewBox="0 0 120 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M60 10 C74 13 85 25 88 40 C91 55 88 70 83 85 C78 100 71 111 69 126 C67 141 70 156 65 168 C60 180 52 188 47 193 C43 196 40 194 43 189 C46 184 52 175 56 164 C60 153 62 140 59 126 C56 112 50 100 48 86 C46 72 47 58 52 44 C57 30 64 18 60 10 Z"
+              stroke="rgba(255,255,255,0.45)" stroke-width="1.5" fill="rgba(255,255,255,0.05)"/>
+          </svg>
+        </div>
+        <div class="planner-intro">
+          <div class="pl-badge">Powered Route Intelligence</div>
+          <h2 class="planner-title">Plan Your<br/><em>Multi-Stop Journey ✦</em></h2>
+          <p class="planner-desc">Fill in your details→ AI calculates the optimal route, estimates traffic-aware travel times, and curates restaurants, hotels &amp; attractions in LKR.</p>
+        </div>
+      </div>
+
+      <!-- Right: Trip form -->
+      <div class="planner-right reveal-right">
+        <form class="trip-form" id="tripForm" novalidate>
+
+          <div class="form-group">
+            <label class="form-label" for="startLocation"><span class="ld green"></span> Start Location</label>
+            <div class="input-wrap">
+              <input type="text" id="startLocation" class="form-input" placeholder="e.g. Colombo, Negomboâ€¦" list="citySuggestions" required />
+              <span class="input-icon"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="mainDestination"><span class="ld red"></span> Main Destination</label>
+            <div class="input-wrap">
+              <input type="text" id="mainDestination" class="form-input" placeholder="e.g. Ella, Galleâ€¦" list="citySuggestions" required />
+              <span class="input-icon"><!--adddd icon--></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label"><span class="ld blue"></span> Optional Stops <span class="lhint">drag to reorder</span></label>
+            <div id="stopsContainer" class="stops-container"></div>
+            <button type="button" class="btn-add-stop" id="addStopBtn">+ Add a Stop</button>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="numTravelers">Travelers</label>
+              <div class="input-wrap">
+                <input type="number" id="numTravelers" class="form-input" min="1" max="50" value="2" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="travelMode">Travel Mode</label>
+              <select id="travelMode" class="form-input form-select">
+                <option value="car"> Car</option>
+                <option value="bike"> Motorbike</option>
+                <option value="bus"> Bus</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="totalBudget">Total Budget <span class="lamber">(LKR)</span></label>
+            <div class="input-wrap">
+              <input type="number" id="totalBudget" class="form-input" min="1000" value="15000" required />
+              <span class="input-suffix">Rs.</span>
+            </div>
+            <input type="range" id="budgetSlider" class="budget-slider" min="5000" max="500000" step="1000" value="15000" />
+            <div class="slider-labels"><span>Rs. 5,000</span><span>Rs. 5,00,000</span></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="travelDate">Travel Date</label>
+            <div class="input-wrap">
+              <input type="date" id="travelDate" class="form-input" />
+            </div>
+          </div>
+
+          <button type="submit" class="btn-plan" id="planBtn">
+            <span class="btn-text" id="btnText">Plan My Journey </span>
+            <span class="btn-loader hidden" id="btnLoader"><span class="spinner"></span> Calculating</span>
+          </button>
+          <button type="button" class="btn-reset" id="resetBtn">Reset Trip</button>
+          <button type="button" class="btn-alt" id="altRoutesBtn" style="display:none"> Alternative Routes</button>
+        </form>
+      </div>
+    </div><br><br><br>
+  </section>
+
+  <!-- ===== RESULTS ===== -->
+  <section class="results-section" id="results" style="display:none">
+    <div class="results-header">
+      <div class="res-eyebrow"> AI Trip Summary</div>
+      <h2 class="results-title">Your Optimised <em>Sri Lanka Journey</em></h2>
+      <p class="results-sub" id="resultsSub">Your optimal multi-stop route with smart recommendations</p>
+    </div>
+
+    <div class="results-body">
+      <div class="results-col-wide">
+        <h3 class="sec-heading">ðŸ“  Route Timeline</h3>
+        <div class="timeline" id="routeTimeline"></div>
+        <!-- Map -->
+        <div class="map-wrap">
+          <div id="map" class="map-canvas"></div>
+          <div class="map-placeholder" id="mapOverlay">
+            <div class="mp-icon"></div>
+            <h3>Your Route Appears Here</h3>
+            <p>Enter trip details and click <strong>Plan My Journey</strong> to see your live Google Maps route.</p>
+            <div class="mp-tags">
+              <span> All stops</span><span>Optimized route</span><span> Hotels</span><span>Restaurants</span>
+            </div>
+          </div>
+          <div class="map-infobar" id="mapInfoBar" style="display:none">
+            <div class="mib-item"><span>📏</span><span class="mib-lbl">Distance</span><strong id="totalDistance"></strong></div>
+            <div class="mib-item"><span>⌚</span><span class="mib-lbl">Travel Time</span><strong id="totalTime"></strong></div>
+            <div class="mib-item"><span>📍</span><span class="mib-lbl">Stops</span><strong id="totalStops"></strong></div>
+            <div class="mib-item"><span>💵</span><span class="mib-lbl">Est. Cost</span><strong id="totalCost"></strong></div>
+          </div>
+          <a id="openGmapsBtn" class="open-gmaps-btn" href="#" target="_blank" style="display:none">ðŸ—ºï¸  Open in Google Maps</a>
+        </div>
+      </div>
+      <div class="results-col">
+        <h3 class="sec-heading">Budget Breakdown <span class="ai-badge">AI Calculated</span></h3>
+        <div class="budget-grid" id="budgetGrid"></div>
+      </div>
+    </div>
+
+    <div class="reco-block">
+      <h3 class="sec-heading">Restaurant Recommendations <span class="ai-badge">AI Curated</span></h3>
+      <p class="sec-sub">Top restaurants along your route, filtered by budget &amp; ratings</p>
+      <div class="reco-grid" id="restaurantGrid"></div>
+    </div>
+
+    <div class="reco-block">
+      <h3 class="sec-heading">Hotel Recommendations <span class="ai-badge">AI Curated</span></h3>
+      <p class="sec-sub">Best-value stays along your route within your budget</p>
+      <div class="reco-grid" id="hotelGrid"></div>
+    </div>
+
+    <div class="reco-block">
+      <h3 class="sec-heading">Places to Visit <span class="ai-badge">AI Curated</span></h3>
+      <p class="sec-sub">Top attractions â€” waterfalls, forests, wildlife, temples &amp; more</p>
+      <div class="attraction-filters" id="attractionFilters">
+        <button class="af-pill active" data-cat="all">All</button>
+        <button class="af-pill" data-cat="waterfall">Waterfalls</button>
+        <button class="af-pill" data-cat="forest">Forests</button>
+        <button class="af-pill" data-cat="wildlife">Wildlife</button>
+        <button class="af-pill" data-cat="heritage">Heritage</button>
+        <button class="af-pill" data-cat="temple">Temples</button>
+        <button class="af-pill" data-cat="beach">Beaches</button>
+        <button class="af-pill" data-cat="viewpoint">Viewpoints</button>
+        <button class="af-pill" data-cat="activity">Activities</button>
+      </div>
+      <div class="reco-grid attractions-grid" id="attractionsGrid"></div>
+    </div>
+
+    <div class="savings-banner" id="savingsBanner" style="display:none">
+      <span class="sb-icon"></span>
+      <div><strong class="sb-title">AI Savings Tip</strong><p class="sb-text" id="savingsText"></p></div>
+    </div>
+  </section>
+
+  <!-- ===== WHY US ===== -->
+  <section class="why-section" id="about">
+    <div class="why-inner">
+      <div class="why-eyebrow reveal-up">Why Choose Us</div>
+      <h2 class="why-title reveal-up">Why <em>Tripify?</em></h2>
+      <div class="why-grid reveal-up">
+        <div class="why-card">
+          <div class="why-cat">AI POWERED</div>
+          <h3 class="why-name">Route Optimization</h3>
+          <div class="why-rule"></div>
+          <p>Analyzes all stops, distances &amp; traffic to find the most efficient Sri Lanka route.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-cat">BUDGET SMART</div>
+          <h3 class="why-name">Budget in LKR</h3>
+          <div class="why-rule"></div>
+          <p>All costs transport, meals, accommodation calculated in Sri Lankan Rupees.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-cat">TRAFFIC AWARE</div>
+          <h3 class="why-name">Real-Time Timing</h3>
+          <div class="why-rule"></div>
+          <p>Travel times factor in Sri Lanka's rush hours and real road conditions.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-cat">HAND-PICKED</div>
+          <h3 class="why-name">Smart Recommendations</h3>
+          <div class="why-rule"></div>
+          <p>Curated restaurants, hotels &amp; attractions filtered by budget, proximity, and ratings.</p>
+        </div>
+      </div>
+      <div class="star-rating reveal-up" id="siteRating">
+        <span class="sr-text">Rate our service:</span>
+        <div class="stars">
+          <span class="star" data-val="1">★</span><span class="star" data-val="2">★</span><span class="star" data-val="3">★</span><span class="star" data-val="4">★</span><span class="star" data-val="5">★</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TEAM & ABOUT ===== -->
+  <section class="team-section" id="team-section">
+    <div class="team-inner">
+      <div class="team-header reveal-up">
+        <div class="team-eyebrow">The Builders</div>
+        <h2 class="team-title">Meet the <em>Team</em></h2>
+        <p class="team-sub">Six passionate developers who built Tripify to make Sri Lanka travel smarter, easier, and unforgettable.</p>
+      </div>
+
+      <div class="team-grid">
+        <div class="team-card reveal-up">
+          <div class="team-member-pill" style="--ac:#00c9a7">Dineth</div>
+        </div>
+        <div class="team-card reveal-up">
+          <div class="team-member-pill" style="--ac:#ffbe3f">Thisara</div>
+        </div>
+        <div class="team-card reveal-up">
+          <div class="team-member-pill" style="--ac:#4a9eff">Navindu</div>
+        </div>
+        <div class="team-card reveal-up">
+          <div class="team-member-pill" style="--ac:#ff6b9d">Riveen</div>
+        </div>
+        <div class="team-card reveal-up">
+          <div class="team-member-pill" style="--ac:#bc7eff">Malindu</div>
+        </div>
+        <div class="team-card reveal-up">
+          <div class="team-member-pill" style="--ac:#3fb950">Pansilu</div>
+        </div>
+      </div>
+
+      <div class="tech-block reveal-up">
+        <div class="tech-eyebrow"> Built With</div>
+        <div class="tech-pills">
+          <span class="tech-pill">HTML5</span>
+          <span class="tech-pill">CSS3</span>
+          <span class="tech-pill">Vanilla JS</span>
+          <span class="tech-pill">Google Maps API</span>
+          <span class="tech-pill">Leaflet.js</span>
+          <span class="tech-pill">OpenStreetMap</span>
+          <span class="tech-pill">Gemini AI</span>
+          <span class="tech-pill">Google Fonts</span>
+          <span class="tech-pill">Unsplash</span>
+          <span class="tech-pill">LocalStorage</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer">
+    <div class="footer-logo">Tripify Sri Lanka</div>
+    <p>AI-powered trip planning for the Pearl of the Indian Ocean.</p>
+    <p class="footer-note">All prices in LKR Â· Data curated for Sri Lanka travel</p>
+  </footer>
+
+  <datalist id="citySuggestions"></datalist>
+  <div class="toast-container" id="toastContainer"></div>
+
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.min.js"></script>
+  <script src="locations.js"></script>
+  <script src="app.js"></script>
+  <script src="gallery.js"></script>
+  <script>
+    window.GMAPS_KEY = 'AIzaSyCzcgTVfVPxYug-MBTLtLF1eSbtjFcMzrM';
+
+    // Called automatically by Google Maps when key is invalid / quota exceeded
+    window.gm_authFailure = function() {
+      console.warn('Google Maps auth failed â€” falling back to Leaflet/OpenStreetMap');
+      window.googleMapsLoaded = false;
+      window.GMAPS_KEY = null;
+      // Remove broken gmap div content, reinit Leaflet
+      if (window.initLeafletMap) window.initLeafletMap();
+      if (window.showToast) window.showToast('Google Maps quota reached â€” using OpenStreetMap instead', 'error');
+    };
+
+    window.onGoogleMapsReady = function() {
+      window.googleMapsLoaded = true;
+      if (window.initGoogleMap) window.initGoogleMap();
+    };
+
+    if (window.GMAPS_KEY && window.GMAPS_KEY !== 'YOUR_API_KEY') {
+      var s = document.createElement('script');
+      s.src = 'https://maps.googleapis.com/maps/api/js?key=' + window.GMAPS_KEY + '&libraries=places,geometry&callback=onGoogleMapsReady';
+      s.async = true; s.defer = true;
+      // If script itself fails to load, fall back to Leaflet
+      s.onerror = function() {
+        window.GMAPS_KEY = null;
+        if (window.initLeafletMap) window.initLeafletMap();
+      };
+      document.head.appendChild(s);
+    } else {
+      window.GMAPS_KEY = null;
+      document.addEventListener('DOMContentLoaded', function() { if (window.initLeafletMap) window.initLeafletMap(); });
+    }
+  </script>
+
+</body>
+</html>
